@@ -9,6 +9,8 @@
 
 #include <logger/logger.h>
 
+#include <stb/stb_image.h>
+
 #include "data/tileset.h"
 
 namespace viewer {
@@ -37,9 +39,39 @@ Tileset Parser::parse_tileset(const std::string& name)
     }
 
     return Tileset {
+        parse_image(tileset_path),
         parse_metatiles(tileset_path),
         parse_palettes(tileset_path)
     };
+}
+
+/**
+ * @brief Parses the image data for the given tileset.
+ * @param tileset_path The folder containing the tileset data.
+ * @return The parsed image data.
+ */
+ImageData Parser::parse_image(const std::filesystem::path& tileset_path)
+{
+    std::filesystem::path image_path { tileset_path / "tiles.png" };
+
+    LOG_DEBUG( std::format("Parsing image file: {}", image_path.string()) );
+
+    if (!std::filesystem::exists(image_path))
+    {
+        LOG_ERROR("Tileset image does not exist");
+        return {};
+    }
+
+    ImageData image_data {};
+    image_data.data = stbi_load(
+        image_path.string().c_str(),
+        &image_data.width,
+        &image_data.height,
+        &image_data.channels,
+        4
+    );
+
+    return image_data;
 }
 
 /**
@@ -147,7 +179,7 @@ std::vector<Palette> Parser::parse_palettes(const std::filesystem::path& tileset
 {
     std::filesystem::path palette_path { tileset_path / "palettes" };
 
-    LOG_DEBUG( std::format("Parsing palettes: {}", tileset_path.string()) );
+    LOG_DEBUG( std::format("Parsing palettes: {}", palette_path.string()) );
 
     if (!std::filesystem::exists(palette_path))
     {
@@ -212,5 +244,5 @@ Palette Parser::parse_palette(const std::filesystem::path& palette_file)
     return Palette { colors };
 }
 
-}
-}
+} // namespace data
+} // namespace viewer

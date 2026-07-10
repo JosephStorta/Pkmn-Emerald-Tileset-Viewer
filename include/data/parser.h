@@ -19,6 +19,8 @@ public:
     static Tileset parse_tileset(const std::string& name);
 
 private:
+    static ImageData parse_image(const std::filesystem::path& tileset_path);
+
     static std::vector<Metatile> parse_metatiles(const std::filesystem::path& tileset_path);
     static Metatile parse_metatile(char data[]);
 
@@ -26,7 +28,7 @@ private:
     static Palette parse_palette(const std::filesystem::path& palette_file);
 };
 
-}
-}
+} // namespace data
+} // namespace viewer
 
 #endif // VIEWER_DATA_PARSER_H_

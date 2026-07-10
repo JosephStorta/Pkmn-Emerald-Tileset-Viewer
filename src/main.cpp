@@ -11,6 +11,7 @@ int main()
 {
     LOG_INFO("Running test parse...");
     viewer::data::Parser::parse_tileset(tileset_name);
+    LOG_INFO("Test parse complete");
 
     return 0;
 }

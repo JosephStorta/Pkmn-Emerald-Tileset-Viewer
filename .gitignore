@@ -1,6 +1,9 @@
 # VSCode JSON files depend on the workspace settings
 /.vscode
 
+# Connected to the build process
+/bin/**
+
 # CMake build files depend on the compiler setup
 /build/**
 

@@ -8,13 +8,30 @@
 namespace viewer {
 namespace data {
 
+/**
+ * @brief Basic image data struct.
+ */
+struct ImageData
+{
+    int width;
+    int height;
+    int channels;
+
+    unsigned char* data { nullptr };
+};
+
+/**
+ * @brief Stores a tiles index and flags.
+ */
 struct Tile
 {
     uint8_t index;
-
     uint8_t flags; // I'll decode what each flag means later
 };
 
+/**
+ * @brief Stores metatile data.
+ */
 struct Metatile
 {
     // Each metatile is made up of 2 layers of 4 tiles
@@ -42,9 +59,13 @@ struct Palette
     std::vector<Color> colors;
 };
 
+/**
+ * @brief Stores tileset data.
+ */
 struct Tileset
 {
-    // TODO: store tileset image data
+    ImageData image;
+
     std::vector<Metatile> metatiles;
     std::vector<Palette> palettes;
 };

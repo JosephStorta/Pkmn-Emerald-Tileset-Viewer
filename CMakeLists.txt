@@ -26,6 +26,13 @@ add_library(Logger STATIC
 
 target_include_directories(Logger PUBLIC ${CMAKE_SOURCE_DIR}/vendor)
 
+# STB
+add_library(STB STATIC
+    ${CMAKE_SOURCE_DIR}/vendor/stb/stb_image.cpp
+)
+
+target_include_directories(STB PUBLIC ${CMAKE_SOURCE_DIR}/vendor)
+
 # Load subdirectories
 add_subdirectory(src/data)
 
