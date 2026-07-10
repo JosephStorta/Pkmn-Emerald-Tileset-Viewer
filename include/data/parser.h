@@ -20,10 +20,10 @@ public:
 
 private:
     static std::vector<Metatile> parse_metatiles(const std::filesystem::path& tileset_path);
-    static Metatile parse_metatile();
+    static Metatile parse_metatile(char data[]);
 
     static std::vector<Palette> parse_palettes(const std::filesystem::path& tileset_path);
-    static Palette parse_palette();
+    static Palette parse_palette(const std::filesystem::path& palette_file);
 };
 
 }
