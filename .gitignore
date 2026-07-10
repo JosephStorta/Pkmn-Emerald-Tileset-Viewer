@@ -1,0 +1,8 @@
+# VSCode JSON files depend on the workspace settings
+/.vscode
+
+# CMake build files depend on the compiler setup
+/build/**
+
+# CMake Presets depend on the build system
+/CMakePresets.json
