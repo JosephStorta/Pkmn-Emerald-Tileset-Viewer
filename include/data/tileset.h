@@ -13,6 +13,8 @@ namespace data {
  */
 struct ImageData
 {
+    ~ImageData() { delete[] data; }
+
     int width;
     int height;
     int channels;
