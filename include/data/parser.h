@@ -2,7 +2,6 @@
 #define VIEWER_DATA_PARSER_H_
 
 #include <filesystem>
-#include <string>
 #include <vector>
 
 #include "data/tileset.h"
@@ -16,10 +15,10 @@ namespace data {
 class Parser
 {
 public:
-    static Tileset parse_tileset(const std::string& name);
+    static Tileset* parse_tileset(const std::filesystem::path& tileset_path);
 
 private:
-    static ImageData parse_image(const std::filesystem::path& tileset_path);
+    static ImageData* parse_image(const std::filesystem::path& tileset_path);
 
     static std::vector<Metatile> parse_metatiles(const std::filesystem::path& tileset_path);
     static Metatile parse_metatile(char data[]);

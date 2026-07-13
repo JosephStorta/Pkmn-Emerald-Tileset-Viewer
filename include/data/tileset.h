@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "stb/stb_image.h"
+
 namespace viewer {
 namespace data {
 
@@ -13,7 +15,7 @@ namespace data {
  */
 struct ImageData
 {
-    ~ImageData() { delete[] data; }
+    ~ImageData() { stbi_image_free(data); }
 
     int width;
     int height;

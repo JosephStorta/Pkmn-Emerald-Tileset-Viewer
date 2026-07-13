@@ -1,5 +1,7 @@
 #include "gui/app.h"
 
+#include <filesystem>
+
 #include <logger/logger.h>
 
 #include <wx/wxprec.h>
@@ -8,7 +10,11 @@
     #include <wx/wx.h>
 #endif
 
+#include <wx/dirdlg.h>
 #include <wx/spinctrl.h>
+
+#include "data/parser.h"
+#include "data/tileset.h"
 
 namespace viewer {
 namespace gui {
@@ -20,7 +26,7 @@ SET_LOG_MODULE("GUI");
  */
 enum MenuItem
 {
-    Hello = 1
+    Open = 1
 };
 
 /**
@@ -100,7 +106,7 @@ MainFrame::MainFrame()
 
     // Sizer for option widgets
     wxStaticBoxSizer* tileset_options_sizer = new wxStaticBoxSizer(
-        new wxStaticBox(tileset_view_panel, wxID_ANY, _("Options")),
+        new wxStaticBox(tileset_view_panel, wxID_ANY, "Options"),
         wxHORIZONTAL
     );
 
@@ -111,7 +117,7 @@ MainFrame::MainFrame()
     wxCheckBox* apply_palette_check = new wxCheckBox(
         tileset_options_sizer->GetStaticBox(),
         wxID_ANY,
-        _("Apply Palette"),
+        "Apply Palette",
         wxDefaultPosition,
         wxDefaultSize,
         wxALIGN_RIGHT
@@ -135,7 +141,7 @@ MainFrame::MainFrame()
     wxStaticText* palette_num_label = new wxStaticText(
         tileset_options_sizer->GetStaticBox(),
         wxID_ANY,
-        _("Palette"),
+        "Palette",
         wxDefaultPosition,
         wxDefaultSize,
         wxALIGN_RIGHT
@@ -172,9 +178,9 @@ void MainFrame::create_menu_bar()
     
     wxMenu *file_menu = new wxMenu;
     file_menu->Append(
-        MenuItem::Hello,
-        "&Hello...\tCtrl-H",
-        "Help string shown in status bar for this menu item"
+        MenuItem::Open,
+        "&Open...\tCtrl-O",
+        "Open a tileset folder"
     );
     file_menu->AppendSeparator();
     file_menu->Append(wxID_EXIT);
@@ -188,7 +194,7 @@ void MainFrame::create_menu_bar()
 
     SetMenuBar(menu_bar);
 
-    Bind(wxEVT_MENU, &MainFrame::on_hello, this, MenuItem::Hello);
+    Bind(wxEVT_MENU, &MainFrame::on_open, this, MenuItem::Open);
     Bind(wxEVT_MENU, &MainFrame::on_exit, this, wxID_EXIT);
     Bind(wxEVT_MENU, &MainFrame::on_about, this, wxID_ABOUT);
 }
@@ -197,9 +203,27 @@ void MainFrame::create_menu_bar()
  * @brief Functionality for the "File > Hello" menu item.
  * @param event 
  */
-void MainFrame::on_hello(wxCommandEvent& event)
+void MainFrame::on_open(wxCommandEvent& event)
 {
-    wxLogMessage("Hello world from wxWidgets!");
+    LOG_DEBUG("Showing file dialog...");
+
+    wxDirDialog dialog(
+        this,
+        "Select tileset folder",
+        std::filesystem::canonical("./res").string(),
+        wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST
+    );
+    dialog.CenterOnParent();
+
+    if (dialog.ShowModal() != wxID_OK)
+    {   LOG_DEBUG("File select cancelled");
+        return;
+    }
+
+    std::filesystem::path tileset_path { dialog.GetPath().ToStdString() };
+    data::Tileset tileset { *data::Parser::parse_tileset(tileset_path) };
+
+    LOG_DEBUG("Tileset loading complete");
 }
 
 /**

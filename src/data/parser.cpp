@@ -5,6 +5,7 @@
 #include <format>
 #include <fstream>
 #include <ios>
+#include <memory>
 #include <string>
 
 #include <logger/logger.h>
@@ -18,31 +19,27 @@ namespace data {
 
 SET_LOG_MODULE("DATA");
 
-// Root directory for tileset data (value subject to change)
-const std::filesystem::path tileset_root_path { "./res/primary" };
-
 /**
  * @brief Parses tileset data into a Tileset object.
  * @param name The name of the tileset.
  * @return The parsed tileset data.
  */
-Tileset Parser::parse_tileset(const std::string& name)
+Tileset* Parser::parse_tileset(const std::filesystem::path& tileset_path)
 {
-    std::filesystem::path tileset_path { tileset_root_path / name };
-
     LOG_INFO( std::format("Parsing tileset: {}", tileset_path.string()) );
 
     if (!std::filesystem::exists(tileset_path))
     {
         LOG_ERROR("Tileset does not exist");
-        return Tileset{};
+        return nullptr;
     }
 
-    return Tileset {
-        parse_image(tileset_path),
-        parse_metatiles(tileset_path),
-        parse_palettes(tileset_path)
-    };
+    std::unique_ptr<Tileset> tileset { std::make_unique<Tileset>() };
+    tileset->image = *parse_image(tileset_path);
+    tileset->metatiles = parse_metatiles(tileset_path);
+    tileset->palettes = parse_palettes(tileset_path);
+
+    return tileset.release();
 }
 
 /**
@@ -50,7 +47,7 @@ Tileset Parser::parse_tileset(const std::string& name)
  * @param tileset_path The folder containing the tileset data.
  * @return The parsed image data.
  */
-ImageData Parser::parse_image(const std::filesystem::path& tileset_path)
+ImageData* Parser::parse_image(const std::filesystem::path& tileset_path)
 {
     std::filesystem::path image_path { tileset_path / "tiles.png" };
 
@@ -62,16 +59,16 @@ ImageData Parser::parse_image(const std::filesystem::path& tileset_path)
         return {};
     }
 
-    ImageData image_data {};
-    image_data.data = stbi_load(
+    std::unique_ptr<ImageData> image_data { std::make_unique<ImageData>() };
+    image_data->data = stbi_load(
         image_path.string().c_str(),
-        &image_data.width,
-        &image_data.height,
-        &image_data.channels,
+        &image_data->width,
+        &image_data->height,
+        &image_data->channels,
         4
     );
 
-    return image_data;
+    return image_data.release();
 }
 
 /**
@@ -116,9 +113,9 @@ std::vector<Metatile> Parser::parse_metatiles(const std::filesystem::path& tiles
 
     LOG_DEBUG( std::format("Parsing metatile attributes: {}", attribute_path.string()) );
 
-    if (!std::filesystem::exists(metatile_path))
+    if (!std::filesystem::exists(attribute_path))
     {
-        LOG_ERROR("Metatile data does not exist:");
+        LOG_ERROR("Metatile attribute data does not exist:");
         return metatiles;
     }
 

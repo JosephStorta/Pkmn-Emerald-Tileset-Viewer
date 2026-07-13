@@ -31,7 +31,7 @@ private:
     void create_menu_bar();
 
     // Menu bar item methods
-    void on_hello(wxCommandEvent& event);
+    void on_open(wxCommandEvent& event);
     void on_exit(wxCommandEvent& event);
     void on_about(wxCommandEvent& event);
 };
