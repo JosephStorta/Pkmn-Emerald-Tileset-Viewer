@@ -44,51 +44,123 @@ MainFrame::MainFrame()
 {
     LOG_DEBUG("Creating main frame...");
 
-    SetSizeHints(wxDefaultSize, wxDefaultSize);
+    // GUI coding go brrrr
+
+    // --- Top-Level --- //
+
+    // Position the window in the center of the main display
+	Center(wxBOTH);
+
     create_menu_bar();
 
-	wxBoxSizer* main_sizer = new wxBoxSizer(wxHORIZONTAL);
-	wxPanel* tileset_view_panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
-	wxBoxSizer* tileset_view_sizer = new wxBoxSizer(wxVERTICAL);
-	wxScrolledWindow* tilset_scroll = new wxScrolledWindow(tileset_view_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN|wxHSCROLL|wxVSCROLL);
-	tilset_scroll->SetScrollRate(5, 5);
-	wxBoxSizer* image_sizer = new wxBoxSizer(wxVERTICAL);
+    // Top-level sizer
+    wxBoxSizer* main_sizer = new wxBoxSizer(wxHORIZONTAL);
+    SetSizer(main_sizer);
 
-	//wxStaticBitmap* tileset_image = new wxStaticBitmap(tilset_scroll, wxID_ANY, wxNullBitmap, wxDefaultPosition, wxDefaultSize, 0);
-	//image_sizer->Add(tileset_image, 1, wxALL|wxEXPAND, 5);
+    // --- Tileset View --- //
 
-	tilset_scroll->SetSizer(image_sizer);
-	tilset_scroll->Layout();
-	image_sizer->Fit(tilset_scroll);
-	tileset_view_sizer->Add(tilset_scroll, 1, wxALL|wxEXPAND, 5);
+    // Sizer for tileset view panel widgets
+    wxBoxSizer* tileset_view_sizer = new wxBoxSizer(wxVERTICAL);
 
-	wxStaticBoxSizer* tileset_options_sizer = new wxStaticBoxSizer(new wxStaticBox(tileset_view_panel, wxID_ANY, _("Options")), wxHORIZONTAL);
+    // Panel responsible for displaying the loaded tileset and display options
+    wxPanel* tileset_view_panel = new wxPanel(
+        this,
+        wxID_ANY,
+        wxDefaultPosition,
+        wxDefaultSize,
+        wxTAB_TRAVERSAL
+    );
+    tileset_view_panel->SetSizer(tileset_view_sizer);
 
-	wxCheckBox* apply_palette_check = new wxCheckBox(tileset_options_sizer->GetStaticBox(), wxID_ANY, _("Apply Palette"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
-	tileset_options_sizer->Add(apply_palette_check, 2, wxALL|wxEXPAND, 5);
+    // Add to sizer
+    main_sizer->Add(tileset_view_panel, 1, wxEXPAND | wxALL, 5);
+
+    // --- Image Display --- //
+
+    // Sizer for the tileset image display
+    wxBoxSizer* image_sizer = new wxBoxSizer(wxVERTICAL);
+
+    // Window to allow image scrolling
+	wxScrolledWindow* tilset_scroll = new wxScrolledWindow(
+        tileset_view_panel,
+        wxID_ANY,
+        wxDefaultPosition,
+        wxDefaultSize,
+        wxBORDER_SUNKEN | wxHSCROLL | wxVSCROLL
+    );
+    tilset_scroll->SetScrollRate(5, 5);
+    tilset_scroll->SetSizer(image_sizer);
+
+    // Add to sizer
+    tileset_view_sizer->Add(tilset_scroll, 1, wxALL | wxEXPAND, 5);
+    
+    // TODO: Create image display
+
+    // --- View Options --- //
+
+    // Sizer for option widgets
+    wxStaticBoxSizer* tileset_options_sizer = new wxStaticBoxSizer(
+        new wxStaticBox(tileset_view_panel, wxID_ANY, _("Options")),
+        wxHORIZONTAL
+    );
+
+    // Add to sizer
+    tileset_view_sizer->Add(tileset_options_sizer, 0, wxEXPAND, 5);
+
+    // Checkbox for showing palette colors
+    wxCheckBox* apply_palette_check = new wxCheckBox(
+        tileset_options_sizer->GetStaticBox(),
+        wxID_ANY,
+        _("Apply Palette"),
+        wxDefaultPosition,
+        wxDefaultSize,
+        wxALIGN_RIGHT
+    );
+
+    // Add to sizer
+    tileset_options_sizer->Add(apply_palette_check, 2, wxALL | wxEXPAND, 5);
+
+    // Add a separator to the sizer
 	tileset_options_sizer->Add(0, 0, 1, wxEXPAND, 5);
 
-	wxBoxSizer* palette_num_sizer = new wxBoxSizer(wxHORIZONTAL);
+    // --- Palette Select --- //
 
-	wxStaticText* palette_num_label = new wxStaticText(tileset_options_sizer->GetStaticBox(), wxID_ANY, _("Palette"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
-	palette_num_label->Wrap(-1);
-	palette_num_sizer->Add(palette_num_label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    // Sizer for palette selector widgets
+    wxBoxSizer* palette_num_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-	wxSpinCtrl* palette_num_spinbox = new wxSpinCtrl(tileset_options_sizer->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 10, 0);
-	palette_num_spinbox->SetMinSize( wxSize(48,-1) );
+    // Add to sizer
+    tileset_options_sizer->Add(palette_num_sizer, 2, wxEXPAND, 5);
 
-	palette_num_sizer->Add(palette_num_spinbox, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
-	tileset_options_sizer->Add(palette_num_sizer, 2, wxEXPAND, 5);
-	tileset_view_sizer->Add(tileset_options_sizer, 0, wxEXPAND, 5);
+    // Label for the spinbox
+    wxStaticText* palette_num_label = new wxStaticText(
+        tileset_options_sizer->GetStaticBox(),
+        wxID_ANY,
+        _("Palette"),
+        wxDefaultPosition,
+        wxDefaultSize,
+        wxALIGN_RIGHT
+    );
+    palette_num_label->Wrap(-1);
 
-	tileset_view_panel->SetSizer(tileset_view_sizer);
-	tileset_view_panel->Layout();
-	tileset_view_sizer->Fit(tileset_view_panel);
-	main_sizer->Add(tileset_view_panel, 1, wxEXPAND|wxALL, 5);
+    // Add to sizer
+    palette_num_sizer->Add(palette_num_label, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 
-	SetSizer(main_sizer);
-	Layout();
-	Centre(wxBOTH);
+    // Spinbox to display palette number
+    wxSpinCtrl* palette_num_spinbox = new wxSpinCtrl(
+        tileset_options_sizer->GetStaticBox(),
+        wxID_ANY,
+        wxEmptyString,
+        wxDefaultPosition,
+        wxDefaultSize,
+        wxSP_ARROW_KEYS,
+        0,
+        10,
+        0
+    );
+    palette_num_spinbox->SetMinSize( wxSize(48,-1) );
+
+    // Add to sizer
+	palette_num_sizer->Add(palette_num_spinbox, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 }
 
 /**
