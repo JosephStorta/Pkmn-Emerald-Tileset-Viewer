@@ -10,21 +10,30 @@
 namespace viewer {
 namespace gui {
 
+/**
+ * @brief Serves as the base for the GUI.
+ */
 class App : public wxApp
 {
 public:
     virtual bool OnInit();
 };
 
+/**
+ * @brief Acts as the main GUI window.
+ */
 class MainFrame : public wxFrame
 {
 public:
     MainFrame();
  
 private:
-    void OnHello(wxCommandEvent& event);
-    void OnExit(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
+    void create_menu_bar();
+
+    // Menu bar item methods
+    void on_hello(wxCommandEvent& event);
+    void on_exit(wxCommandEvent& event);
+    void on_about(wxCommandEvent& event);
 };
 
 } // namespace gui
