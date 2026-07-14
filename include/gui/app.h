@@ -7,6 +7,8 @@
     #include <wx/wx.h>
 #endif
 
+#include "gui/tileset_view.h"
+
 namespace viewer {
 namespace gui {
 
@@ -28,8 +30,7 @@ public:
     MainFrame();
  
 private:
-    wxScrolledWindow* m_tileset_scroll { nullptr };
-    wxStaticBitmap* m_tileset_bitmap { nullptr };
+    TilesetView* m_tileset_view { nullptr };
 
     void create_menu_bar();
 
