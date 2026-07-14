@@ -65,7 +65,7 @@ ImageData* Parser::parse_image(const std::filesystem::path& tileset_path)
         &image_data->width,
         &image_data->height,
         &image_data->channels,
-        4
+        3
     );
 
     return image_data.release();

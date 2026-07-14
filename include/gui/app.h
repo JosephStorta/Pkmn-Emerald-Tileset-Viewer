@@ -28,6 +28,9 @@ public:
     MainFrame();
  
 private:
+    wxScrolledWindow* m_tileset_scroll { nullptr };
+    wxStaticBitmap* m_tileset_bitmap { nullptr };
+
     void create_menu_bar();
 
     // Menu bar item methods
