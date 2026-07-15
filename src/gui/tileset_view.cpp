@@ -21,9 +21,12 @@ namespace gui {
 
 SET_LOG_MODULE("GUI");
 
-TilesetView::TilesetView(wxStaticBox* box, int orient)
-    : wxStaticBoxSizer(box, orient)
+TilesetView::TilesetView(wxWindow* parent)
+    : wxPanel(parent)
 {
+    // Enable image support
+    wxInitAllImageHandlers();
+
     create_gui();
 }
 
@@ -32,7 +35,7 @@ void TilesetView::load_tileset()
     LOG_DEBUG("Showing file dialog...");
 
     wxDirDialog dialog(
-        this->GetContainingWindow(),
+        this,
         "Select tileset folder",
         std::filesystem::canonical("./res").string(),
         wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST
@@ -57,40 +60,52 @@ void TilesetView::load_tileset()
         m_tileset_bitmap = new wxStaticBitmap(m_tileset_scroll, wxID_ANY, tileset_image);
     }
 
-    GetStaticBox()->SetLabelText("Tileset: " + tileset_path.filename().string());
+    m_tileset_view_sizer->GetStaticBox()->SetLabelText("Tileset: " + tileset_path.filename().string());
 }
 
 void TilesetView::create_gui()
 {
+    // --- Top-level --- //
+
+    SetMinSize( wxSize(270, 571) );
+    SetMaxSize( wxSize(270, 571) );
+
+    m_tileset_view_sizer = new wxStaticBoxSizer(
+        new wxStaticBox(this, wxID_ANY, "Tileset"),
+        wxVERTICAL
+    );
+    SetSizer(m_tileset_view_sizer);
+
     // --- Image Display --- //
 
     // Window to allow image scrolling
 	m_tileset_scroll = new wxScrolledWindow(
-        GetStaticBox(),
+        this,
         wxID_ANY,
         wxDefaultPosition,
         wxDefaultSize,
         wxBORDER_SUNKEN | wxHSCROLL | wxVSCROLL
     );
-    m_tileset_scroll->SetMinSize( wxSize(256, -1) );
+    m_tileset_scroll->SetMinSize( wxSize(260, 516) );
+    m_tileset_scroll->SetMaxSize( wxSize(260, 516) );
     m_tileset_scroll->SetScrollRate(5, 5);
     m_tileset_scroll->SetBackgroundColour(*wxBLACK);
 
     // Add to sizer
-    Add(m_tileset_scroll, 1, wxALL | wxEXPAND);
+    m_tileset_view_sizer->Add(m_tileset_scroll, 1, wxEXPAND);
 
     // --- View Options --- //
 
     // Panel to contain option widgets
     wxPanel* tileset_options_panel {
         new wxPanel(
-            GetStaticBox(),
+            this,
             wxID_ANY
         )
     };
 
     // Add to sizer
-    Add(tileset_options_panel, 0, wxEXPAND, 5);
+    m_tileset_view_sizer->Add(tileset_options_panel, 0, wxEXPAND);
 
     // Sizer for option widgets
     wxBoxSizer* tileset_options_sizer { new wxBoxSizer(wxHORIZONTAL) };
@@ -109,10 +124,10 @@ void TilesetView::create_gui()
     };
 
     // Add to sizer
-    tileset_options_sizer->Add(apply_palette_check, 2, wxALL | wxEXPAND, 5);
+    tileset_options_sizer->Add(apply_palette_check, 2, wxEXPAND);
 
     // Add a separator to the sizer
-	tileset_options_sizer->Add(0, 0, 1, wxEXPAND, 5);
+	tileset_options_sizer->Add(0, 0, 1, wxEXPAND);
 
     // --- Palette Select --- //
 
@@ -120,7 +135,7 @@ void TilesetView::create_gui()
     wxBoxSizer* palette_num_sizer { new wxBoxSizer(wxHORIZONTAL) };
 
     // Add to sizer
-    tileset_options_sizer->Add(palette_num_sizer, 2, wxEXPAND, 5);
+    tileset_options_sizer->Add(palette_num_sizer, 2, wxALIGN_CENTER_VERTICAL | wxRIGHT);
 
     // Label for the spinbox
     wxStaticText* palette_num_label {
@@ -136,7 +151,7 @@ void TilesetView::create_gui()
     palette_num_label->Wrap(-1);
 
     // Add to sizer
-    palette_num_sizer->Add(palette_num_label, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+    palette_num_sizer->Add(palette_num_label, 1, wxALIGN_CENTER_VERTICAL);
 
     // Spinbox to display palette number
     wxSpinCtrl* palette_num_spinbox {
@@ -148,14 +163,14 @@ void TilesetView::create_gui()
             wxDefaultSize,
             wxSP_ARROW_KEYS,
             0,
-            10,
+            15,
             0
         )
     };
     palette_num_spinbox->SetMinSize( wxSize(48, -1) );
 
     // Add to sizer
-	palette_num_sizer->Add(palette_num_spinbox, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+	palette_num_sizer->Add(palette_num_spinbox, 1, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 }
 
 } // namespace gui

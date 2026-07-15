@@ -12,15 +12,17 @@
 namespace viewer {
 namespace gui {
 
-class TilesetView : public wxStaticBoxSizer
+class TilesetView : public wxPanel
 {
 public:
-    TilesetView(wxStaticBox* box, int orient);
+    TilesetView(wxWindow* parent);
 
     void load_tileset();
 
 private:
     data::Tileset m_tileset;
+
+    wxStaticBoxSizer* m_tileset_view_sizer { nullptr };
 
     wxScrolledWindow* m_tileset_scroll { nullptr };
     wxStaticBitmap* m_tileset_bitmap { nullptr };

@@ -48,8 +48,8 @@ MainFrame::MainFrame()
 
     // --- Top-Level --- //
 
-    // Enable image support
-    wxInitAllImageHandlers();
+    SetMinSize( wxSize(296, 635) );
+    SetMaxSize( wxSize(296, 635) );
 
     // Position the window in the center of the main display
 	Center(wxBOTH);
@@ -65,19 +65,16 @@ MainFrame::MainFrame()
     };
 
     // Top-level sizer
-    wxBoxSizer* main_sizer { new wxBoxSizer(wxHORIZONTAL) };
+    wxFlexGridSizer* main_sizer { new wxFlexGridSizer(2, 2, 5, 5) };
     main_panel->SetSizer(main_sizer);
 
     // --- Tileset View --- //
 
     // Custom widget for the tileset view panel
-    m_tileset_view = new TilesetView(
-        new wxStaticBox(main_panel, wxID_ANY, "Tileset"),
-        wxVERTICAL
-    );
+    m_tileset_view = new TilesetView(main_panel);
 
     // Add to sizer
-    main_sizer->Add(m_tileset_view, 0, wxALL | wxEXPAND, 5);
+    main_sizer->Add(m_tileset_view, 1, wxLEFT, 5);
 }
 
 /**
