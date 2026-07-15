@@ -7,6 +7,8 @@
     #include <wx/wx.h>
 #endif
 
+#include "gui/tileset_view.h"
+
 namespace viewer {
 namespace gui {
 
@@ -28,12 +30,16 @@ public:
     MainFrame();
  
 private:
-    void create_menu_bar();
+    TilesetView* m_tileset_view { nullptr };
 
-    // Menu bar item methods
+    // Event methods
     void on_open(wxCommandEvent& event);
     void on_exit(wxCommandEvent& event);
     void on_about(wxCommandEvent& event);
+
+    // GUI creation methods
+    void create_gui();
+    void create_menu_bar();
 };
 
 } // namespace gui

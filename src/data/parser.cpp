@@ -65,7 +65,7 @@ ImageData* Parser::parse_image(const std::filesystem::path& tileset_path)
         &image_data->width,
         &image_data->height,
         &image_data->channels,
-        4
+        3
     );
 
     return image_data.release();
@@ -228,12 +228,21 @@ Palette Parser::parse_palette(const std::filesystem::path& palette_file)
 
     for (int i = 0; i < 16; i++)
     {
-        Color color {};
-        file >> color.red;
-        file >> color.green;
-        file >> color.blue;
+        int r;
+        int g;
+        int b;
 
-        colors.push_back(color);
+        file >> r;
+        file >> g;
+        file >> b;
+
+        colors.push_back(
+            Color {
+                static_cast<uint8_t>(r),
+                static_cast<uint8_t>(g),
+                static_cast<uint8_t>(b)
+            }
+        );
     }
 
     file.close();
