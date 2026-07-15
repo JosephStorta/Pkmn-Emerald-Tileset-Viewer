@@ -7,11 +7,16 @@
     #include <wx/wx.h>
 #endif
 
+#include <wx/spinctrl.h>
+
 #include "data/tileset.h"
 
 namespace viewer {
 namespace gui {
 
+/**
+ * @brief Custom panel for viewing tilesets.
+ */
 class TilesetView : public wxPanel
 {
 public:
@@ -27,6 +32,14 @@ private:
     wxScrolledWindow* m_tileset_scroll { nullptr };
     wxStaticBitmap* m_tileset_bitmap { nullptr };
 
+    wxCheckBox* m_apply_palette_check { nullptr };
+    wxSpinCtrl* m_palette_num_spinbox { nullptr };
+
+    // Event methods
+    void on_palette_check(wxCommandEvent& event);
+    void on_palette_spin(wxSpinEvent& event);
+
+    // GUI creation methods
     void create_gui();
 };
 

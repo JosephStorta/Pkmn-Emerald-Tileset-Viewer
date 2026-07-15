@@ -28,8 +28,15 @@ TilesetView::TilesetView(wxWindow* parent)
     wxInitAllImageHandlers();
 
     create_gui();
+
+    //Bind events
+    m_apply_palette_check->Bind(wxEVT_CHECKBOX, &TilesetView::on_palette_check, this);
+    m_palette_num_spinbox->Bind(wxEVT_SPINCTRL, &TilesetView::on_palette_spin, this);
 }
 
+/**
+ * @brief Prompts the user for a tileset folder to load.
+ */
 void TilesetView::load_tileset()
 {
     LOG_DEBUG("Showing file dialog...");
@@ -63,6 +70,27 @@ void TilesetView::load_tileset()
     m_tileset_view_sizer->GetStaticBox()->SetLabelText("Tileset: " + tileset_path.filename().string());
 }
 
+/**
+ * @brief Triggered when the "Apply Palette" checkbox is toggled.
+ * @param event 
+ */
+void TilesetView::on_palette_check(wxCommandEvent& event)
+{
+    LOG_INFO("Palette application toggled");
+}
+
+/**
+ * @brief Triggered when the "Palette" spin control is spun.
+ * @param event 
+ */
+void TilesetView::on_palette_spin(wxSpinEvent& event)
+{
+    LOG_INFO("Palette number changed");
+}
+
+/**
+ * @brief Creates and arranges GUI widgets.
+ */
 void TilesetView::create_gui()
 {
     // --- Top-level --- //
@@ -86,10 +114,10 @@ void TilesetView::create_gui()
         wxDefaultSize,
         wxBORDER_SUNKEN | wxHSCROLL | wxVSCROLL
     );
+    m_tileset_scroll->SetBackgroundColour(*wxBLACK);
     m_tileset_scroll->SetMinSize( wxSize(260, 516) );
     m_tileset_scroll->SetMaxSize( wxSize(260, 516) );
     m_tileset_scroll->SetScrollRate(5, 5);
-    m_tileset_scroll->SetBackgroundColour(*wxBLACK);
 
     // Add to sizer
     m_tileset_view_sizer->Add(m_tileset_scroll, 1, wxEXPAND);
@@ -112,19 +140,17 @@ void TilesetView::create_gui()
     tileset_options_panel->SetSizer(tileset_options_sizer);
 
     // Checkbox for showing palette colors
-    wxCheckBox* apply_palette_check {
-        new wxCheckBox(
-            tileset_options_panel,
-            wxID_ANY,
-            "Apply Palette?",
-            wxDefaultPosition,
-            wxDefaultSize,
-            wxALIGN_RIGHT
-        )
-    };
+    m_apply_palette_check = new wxCheckBox(
+        tileset_options_panel,
+        wxID_ANY,
+        "Apply Palette?",
+        wxDefaultPosition,
+        wxDefaultSize,
+        wxALIGN_RIGHT
+    );
 
     // Add to sizer
-    tileset_options_sizer->Add(apply_palette_check, 2, wxEXPAND);
+    tileset_options_sizer->Add(m_apply_palette_check, 2, wxEXPAND);
 
     // Add a separator to the sizer
 	tileset_options_sizer->Add(0, 0, 1, wxEXPAND);
@@ -148,29 +174,27 @@ void TilesetView::create_gui()
             wxALIGN_RIGHT
         )
     };
-    palette_num_label->Wrap(-1);
+    palette_num_label->Wrap(-1); // Disable text wrapping
 
     // Add to sizer
     palette_num_sizer->Add(palette_num_label, 1, wxALIGN_CENTER_VERTICAL);
 
     // Spinbox to display palette number
-    wxSpinCtrl* palette_num_spinbox {
-        new wxSpinCtrl(
-            tileset_options_panel,
-            wxID_ANY,
-            wxEmptyString,
-            wxDefaultPosition,
-            wxDefaultSize,
-            wxSP_ARROW_KEYS,
-            0,
-            15,
-            0
-        )
-    };
-    palette_num_spinbox->SetMinSize( wxSize(48, -1) );
+    m_palette_num_spinbox = new wxSpinCtrl(
+        tileset_options_panel,
+        wxID_ANY,
+        wxEmptyString,
+        wxDefaultPosition,
+        wxDefaultSize,
+        wxSP_ARROW_KEYS,
+        0,
+        15,
+        0
+    );
+    m_palette_num_spinbox->SetMinSize( wxSize(48, -1) );
 
     // Add to sizer
-	palette_num_sizer->Add(palette_num_spinbox, 1, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+	palette_num_sizer->Add(m_palette_num_spinbox, 1, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 }
 
 } // namespace gui

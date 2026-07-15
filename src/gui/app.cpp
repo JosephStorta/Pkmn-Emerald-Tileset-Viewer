@@ -36,23 +36,66 @@ bool App::OnInit()
     return true;
 }
 
-/**
- * @brief Initializes the main GUI window.
- */
 MainFrame::MainFrame()
     : wxFrame(NULL, wxID_ANY, "Pokemon Emerald Tileset Viewer")
 {
     LOG_DEBUG("Creating main frame...");
 
+    create_gui();
+
+    // Bind events
+    Bind(wxEVT_MENU, &MainFrame::on_open, this, MenuItem::Open);
+    Bind(wxEVT_MENU, &MainFrame::on_exit, this, wxID_EXIT);
+    Bind(wxEVT_MENU, &MainFrame::on_about, this, wxID_ABOUT);
+}
+
+/**
+ * @brief Functionality for the "File > Hello" menu item.
+ * @param event 
+ */
+void MainFrame::on_open(wxCommandEvent& event)
+{
+    LOG_INFO("Open menu selected");
+
+    m_tileset_view->load_tileset();
+}
+
+/**
+ * @brief Functionality for the "File > Exit" menu item.
+ * @param event 
+ */
+void MainFrame::on_exit(wxCommandEvent& event)
+{
+    Close(true);
+}
+
+/**
+ * @brief Functionality for the "Help > About" menu item.
+ * @param event 
+ */
+void MainFrame::on_about(wxCommandEvent& event)
+{
+    wxMessageBox(
+        "This is a wxWidgets Hello World example",
+        "About Hello World",
+        wxOK | wxICON_INFORMATION
+    );
+}
+
+/**
+ * @brief Creates and arranges GUI widgets.
+ */
+void MainFrame::create_gui()
+{
     // GUI coding go brrrr
 
     // --- Top-Level --- //
 
-    SetMinSize( wxSize(296, 635) );
-    SetMaxSize( wxSize(296, 635) );
-
     // Position the window in the center of the main display
 	Center(wxBOTH);
+
+    SetMinSize( wxSize(296, 635) );
+    SetMaxSize( wxSize(296, 635) );
 
     create_menu_bar();
 
@@ -101,43 +144,6 @@ void MainFrame::create_menu_bar()
     menu_bar->Append(help_menu, "&Help");
 
     SetMenuBar(menu_bar);
-
-    Bind(wxEVT_MENU, &MainFrame::on_open, this, MenuItem::Open);
-    Bind(wxEVT_MENU, &MainFrame::on_exit, this, wxID_EXIT);
-    Bind(wxEVT_MENU, &MainFrame::on_about, this, wxID_ABOUT);
-}
-
-/**
- * @brief Functionality for the "File > Hello" menu item.
- * @param event 
- */
-void MainFrame::on_open(wxCommandEvent& event)
-{
-    LOG_INFO("Open menu selected");
-
-    m_tileset_view->load_tileset();
-}
-
-/**
- * @brief Functionality for the "File > Exit" menu item.
- * @param event 
- */
-void MainFrame::on_exit(wxCommandEvent& event)
-{
-    Close(true);
-}
-
-/**
- * @brief Functionality for the "Help > About" menu item.
- * @param event 
- */
-void MainFrame::on_about(wxCommandEvent& event)
-{
-    wxMessageBox(
-        "This is a wxWidgets Hello World example",
-        "About Hello World",
-        wxOK | wxICON_INFORMATION
-    );
 }
 
 } // namespace gui

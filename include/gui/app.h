@@ -32,12 +32,14 @@ public:
 private:
     TilesetView* m_tileset_view { nullptr };
 
-    void create_menu_bar();
-
-    // Menu bar item methods
+    // Event methods
     void on_open(wxCommandEvent& event);
     void on_exit(wxCommandEvent& event);
     void on_about(wxCommandEvent& event);
+
+    // GUI creation methods
+    void create_gui();
+    void create_menu_bar();
 };
 
 } // namespace gui
