@@ -9,6 +9,13 @@ namespace viewer {
 namespace data {
 
 /**
+ * @brief Base grayscale values used by tileset images.
+ */
+const std::vector<uint8_t> grayscale_palette {
+    255, 238, 222, 205, 189, 172, 156, 139, 115, 98, 82, 65, 49, 32, 16, 0
+};
+
+/**
  * @brief Basic image data struct.
  */
 struct ImageData
