@@ -1,5 +1,7 @@
 #include "gui/metatile_view.h"
 
+#include <vector>
+
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
@@ -23,6 +25,30 @@ void MetatileView::load_metatiles(const data::Tileset* tileset)
     {
         return;
     }
+
+    for (data::Metatile metatile : tileset->metatiles)
+    {
+        wxImage background { create_metatile_layer(metatile.background) };
+        wxImage foreground { create_metatile_layer(metatile.foreground) };
+    }
+
+    m_metatile_image = wxImage(tileset->image.width, tileset->image.height, tileset->image.data, true);
+
+    // wxWidgets gives an error if a wxStaticBitmap is defined without a valid image,
+    // so we wait until a tileset is loaded to define it.
+    if (!m_metatile_bitmap)
+    {
+        m_metatile_bitmap = new wxStaticBitmap(
+            m_bitmap_panel,
+            wxID_ANY,
+            m_metatile_image
+        );
+    }
+}
+
+wxImage MetatileView::create_metatile_layer(std::vector<data::Tile> tiles)
+{
+    return wxNullImage;
 }
 
 void MetatileView::create_gui()

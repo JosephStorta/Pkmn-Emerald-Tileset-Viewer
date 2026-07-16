@@ -1,6 +1,8 @@
 #ifndef VIEWER_GUI_METATILE_VIEW_H_
 #define VIEWER_GUI_METATILE_VIEW_H_
 
+#include <vector>
+
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
@@ -29,6 +31,8 @@ private:
 
     wxPanel* m_bitmap_panel { nullptr };
     wxStaticBitmap* m_metatile_bitmap { nullptr };
+
+    wxImage create_metatile_layer(std::vector<data::Tile> tiles);
 
     // GUI creation methods
     void create_gui();

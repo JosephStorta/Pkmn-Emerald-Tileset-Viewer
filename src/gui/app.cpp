@@ -109,7 +109,6 @@ void MainFrame::create_gui()
     // 270 + 270 + (5 + 5 + 5) + (1 + 1) + 14 = 571
     // 572 + 30 + 20 + 5 + (1 + 1) + 7 = 636
     SetMinSize( wxSize(571, 636) );
-    SetMaxSize( wxSize(571, 636) );
 
     create_menu_bar();
 
