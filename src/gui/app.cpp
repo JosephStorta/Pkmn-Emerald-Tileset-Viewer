@@ -94,6 +94,14 @@ void MainFrame::create_gui()
     // Position the window in the center of the main display
 	Center(wxBOTH);
 
+    // The TilesetView's size is 270x571 (see the comment in TilesetView::create_gui() for why that is).
+    // The window title adds 30px of height.
+    // The menu bar adds 20px of height.
+    // The TilesetView is given a 5px border on the left, which is superficially added to the bottom and right sides.
+    // The entire window has a 1px border.
+    // The defined window area is larger than the displayed window by 14px horizontally and 7px vertically.
+    // 270 + (5 + 5) + (1 + 1) + 14 = 296
+    // 571 + 30 + 20 + 5 + (1 + 1) + 7 = 635
     SetMinSize( wxSize(296, 635) );
     SetMaxSize( wxSize(296, 635) );
 

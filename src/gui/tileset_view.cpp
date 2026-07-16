@@ -45,6 +45,7 @@ void TilesetView::load_tileset()
 {
     LOG_DEBUG("Showing file dialog...");
 
+    // wxDirDialog selects a directory rather than a file
     wxDirDialog dialog(
         this,
         "Select tileset folder",
@@ -58,23 +59,28 @@ void TilesetView::load_tileset()
         return;
     }
 
+    // Parse the selected tileset
     std::filesystem::path tileset_path { dialog.GetPath().ToStdString() };
     m_tileset = *data::Parser::parse_tileset(tileset_path);
 
     LOG_DEBUG("Tileset loading complete");
 
+    // Retrieve the parsed tileset image
     m_tileset_image = wxImage(m_tileset.image.width, m_tileset.image.height, m_tileset.image.data, true);
     m_tileset_image = m_tileset_image.Scale(m_tileset.image.width * 2, m_tileset.image.height * 2);
 
+    // wxWidgets gives an error if a wxStaticBitmap is defined without a valid image,
+    // so we wait until a tileset is loaded to define it.
     if (!m_tileset_bitmap)
     {
         m_tileset_bitmap = new wxStaticBitmap(
-            m_tileset_panel,
+            m_bitmap_panel,
             wxID_ANY,
             m_tileset_image
         );
     }
 
+    // Add the tileset name to the sizer label
     m_tileset_view_sizer->GetStaticBox()->SetLabelText("Tileset: " + tileset_path.filename().string());
 
     update_palette();
@@ -116,12 +122,18 @@ void TilesetView::update_spinbox()
  */
 void TilesetView::update_palette()
 {
+    if (!m_tileset_bitmap)
+    {
+        return;
+    }
+
     if (!m_palette_check->IsChecked())
     {
         m_tileset_bitmap->SetBitmap(m_tileset_image);
         return;
     }
 
+    // Define a new image to retain an instance of the original grayscale image.
     wxImage palette_image { m_tileset_image };
     data::Palette palette { m_tileset.palettes[m_palette_spinbox->GetValue()] };
     
@@ -130,6 +142,7 @@ void TilesetView::update_palette()
         int gray_value { data::grayscale_palette[i] };
         data::Color palette_color { palette.colors[i] };
 
+        // Replace each grayscale value with the corresponding palette color.
         palette_image.Replace(
             gray_value, gray_value, gray_value,
             palette_color.red, palette_color.green, palette_color.blue
@@ -146,6 +159,13 @@ void TilesetView::create_gui()
 {
     // --- Top-level --- //
 
+    // The max tileset size is 256x512.
+    // The StaticBox defined below adds a 5px margin on each side,
+    // except for the top which adds 17px due to the title label.
+    // The sunken border of the bitmap panel adds a 2px margin on each side.
+    // The options panel adds an additional 33px to the height.
+    // 256 + (5 + 5) + (2 + 2) = 270
+    // 512 + (17 + 5) + (2 + 2) + 33 = 571
     SetMinSize( wxSize(270, 571) );
     SetMaxSize( wxSize(270, 571) );
 
@@ -157,20 +177,22 @@ void TilesetView::create_gui()
 
     // --- Image Display --- //
 
-    // Window to allow image scrolling
-	m_tileset_panel = new wxPanel(
+    // Panel to contain the tileset image
+	m_bitmap_panel = new wxPanel(
         this,
         wxID_ANY,
         wxDefaultPosition,
         wxDefaultSize,
         wxBORDER_SUNKEN
     );
-    m_tileset_panel->SetBackgroundColour(*wxBLACK);
-    m_tileset_panel->SetMinSize( wxSize(260, 516) );
-    m_tileset_panel->SetMaxSize( wxSize(260, 516) );
+    m_bitmap_panel->SetBackgroundColour(*wxBLACK);
+
+    // Sunken border adds a 2px margin.
+    m_bitmap_panel->SetMinSize( wxSize(260, 516) );
+    m_bitmap_panel->SetMaxSize( wxSize(260, 516) );
 
     // Add to sizer
-    m_tileset_view_sizer->Add(m_tileset_panel, 1, wxEXPAND);
+    m_tileset_view_sizer->Add(m_bitmap_panel, 1, wxEXPAND);
 
     // --- View Options --- //
 
@@ -211,7 +233,7 @@ void TilesetView::create_gui()
     wxBoxSizer* palette_num_sizer { new wxBoxSizer(wxHORIZONTAL) };
 
     // Add to sizer
-    tileset_options_sizer->Add(palette_num_sizer, 2, wxALIGN_CENTER_VERTICAL | wxRIGHT);
+    tileset_options_sizer->Add(palette_num_sizer, 2, wxALIGN_CENTER_VERTICAL);
 
     // Label for the spinbox
     wxStaticText* palette_num_label {

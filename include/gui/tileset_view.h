@@ -30,7 +30,7 @@ private:
 
     wxStaticBoxSizer* m_tileset_view_sizer { nullptr };
 
-    wxPanel* m_tileset_panel { nullptr };
+    wxPanel* m_bitmap_panel { nullptr };
     wxStaticBitmap* m_tileset_bitmap { nullptr };
 
     wxCheckBox* m_palette_check { nullptr };
