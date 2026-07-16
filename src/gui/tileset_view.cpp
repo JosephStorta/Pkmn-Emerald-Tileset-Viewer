@@ -69,7 +69,7 @@ void TilesetView::load_tileset()
     if (!m_tileset_bitmap)
     {
         m_tileset_bitmap = new wxStaticBitmap(
-            m_tileset_scroll,
+            m_tileset_panel,
             wxID_ANY,
             m_tileset_image
         );
@@ -158,20 +158,19 @@ void TilesetView::create_gui()
     // --- Image Display --- //
 
     // Window to allow image scrolling
-	m_tileset_scroll = new wxScrolledWindow(
+	m_tileset_panel = new wxPanel(
         this,
         wxID_ANY,
         wxDefaultPosition,
         wxDefaultSize,
-        wxBORDER_SUNKEN | wxHSCROLL | wxVSCROLL
+        wxBORDER_SUNKEN
     );
-    m_tileset_scroll->SetBackgroundColour(*wxBLACK);
-    m_tileset_scroll->SetMinSize( wxSize(260, 516) );
-    m_tileset_scroll->SetMaxSize( wxSize(260, 516) );
-    m_tileset_scroll->SetScrollRate(5, 5);
+    m_tileset_panel->SetBackgroundColour(*wxBLACK);
+    m_tileset_panel->SetMinSize( wxSize(260, 516) );
+    m_tileset_panel->SetMaxSize( wxSize(260, 516) );
 
     // Add to sizer
-    m_tileset_view_sizer->Add(m_tileset_scroll, 1, wxEXPAND);
+    m_tileset_view_sizer->Add(m_tileset_panel, 1, wxEXPAND);
 
     // --- View Options --- //
 
