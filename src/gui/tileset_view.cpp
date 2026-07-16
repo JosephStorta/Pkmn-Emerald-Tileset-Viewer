@@ -41,7 +41,7 @@ TilesetView::TilesetView(wxWindow* parent)
 /**
  * @brief Prompts the user for a tileset folder to load.
  */
-void TilesetView::load_tileset()
+data::Tileset* TilesetView::load_tileset()
 {
     LOG_DEBUG("Showing file dialog...");
 
@@ -56,18 +56,18 @@ void TilesetView::load_tileset()
 
     if (dialog.ShowModal() != wxID_OK)
     {   LOG_DEBUG("File select cancelled");
-        return;
+        return nullptr;
     }
 
     // Parse the selected tileset
     std::filesystem::path tileset_path { dialog.GetPath().ToStdString() };
-    m_tileset = *data::Parser::parse_tileset(tileset_path);
+    m_tileset = data::Parser::parse_tileset(tileset_path);
 
     LOG_DEBUG("Tileset loading complete");
 
     // Retrieve the parsed tileset image
-    m_tileset_image = wxImage(m_tileset.image.width, m_tileset.image.height, m_tileset.image.data, true);
-    m_tileset_image = m_tileset_image.Scale(m_tileset.image.width * 2, m_tileset.image.height * 2);
+    m_tileset_image = wxImage(m_tileset->image.width, m_tileset->image.height, m_tileset->image.data, true);
+    m_tileset_image = m_tileset_image.Scale(m_tileset->image.width * 2, m_tileset->image.height * 2);
 
     // wxWidgets gives an error if a wxStaticBitmap is defined without a valid image,
     // so we wait until a tileset is loaded to define it.
@@ -84,6 +84,8 @@ void TilesetView::load_tileset()
     m_tileset_view_sizer->GetStaticBox()->SetLabelText("Tileset: " + tileset_path.filename().string());
 
     update_palette();
+
+    return m_tileset;
 }
 
 /**
@@ -135,7 +137,7 @@ void TilesetView::update_palette()
 
     // Define a new image to retain an instance of the original grayscale image.
     wxImage palette_image { m_tileset_image };
-    data::Palette palette { m_tileset.palettes[m_palette_spinbox->GetValue()] };
+    data::Palette palette { m_tileset->palettes[m_palette_spinbox->GetValue()] };
     
     for (int i = 0; i < palette.colors.size(); i++)
     {
@@ -159,15 +161,15 @@ void TilesetView::create_gui()
 {
     // --- Top-level --- //
 
-    // The max tileset size is 256x512.
+    // The max tileset size is 128x256. The display doubles that to 256x512.
     // The StaticBox defined below adds a 5px margin on each side,
     // except for the top which adds 17px due to the title label.
     // The sunken border of the bitmap panel adds a 2px margin on each side.
-    // The options panel adds an additional 33px to the height.
+    // The options panel adds an additional 34px to the height.
     // 256 + (5 + 5) + (2 + 2) = 270
-    // 512 + (17 + 5) + (2 + 2) + 33 = 571
-    SetMinSize( wxSize(270, 571) );
-    SetMaxSize( wxSize(270, 571) );
+    // 512 + (17 + 5) + (2 + 2) + 34 = 572
+    SetMinSize( wxSize(270, 572) );
+    SetMaxSize( wxSize(270, 572) );
 
     m_tileset_view_sizer = new wxStaticBoxSizer(
         new wxStaticBox(this, wxID_ANY, "Tileset"),
@@ -203,6 +205,7 @@ void TilesetView::create_gui()
             wxID_ANY
         )
     };
+    tileset_options_panel->SetMinSize( wxSize(-1, 34) );
 
     // Add to sizer
     m_tileset_view_sizer->Add(tileset_options_panel, 0, wxEXPAND);

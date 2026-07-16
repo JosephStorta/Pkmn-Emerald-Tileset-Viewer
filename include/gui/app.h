@@ -7,6 +7,9 @@
     #include <wx/wx.h>
 #endif
 
+#include "data/tileset.h"
+
+#include "gui/metatile_view.h"
 #include "gui/tileset_view.h"
 
 namespace viewer {
@@ -30,7 +33,10 @@ public:
     MainFrame();
  
 private:
+    data::Tileset* m_tileset { nullptr };
+
     TilesetView* m_tileset_view { nullptr };
+    MetatileView* m_metatile_view { nullptr };
 
     // Event methods
     void on_open(wxCommandEvent& event);

@@ -1,5 +1,6 @@
 add_library(Gui STATIC
     app.cpp
+    metatile_view.cpp
     tileset_view.cpp
 )
 

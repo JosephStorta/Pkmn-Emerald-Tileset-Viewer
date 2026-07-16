@@ -57,7 +57,10 @@ void MainFrame::on_open(wxCommandEvent& event)
 {
     LOG_INFO("Open menu selected");
 
-    m_tileset_view->load_tileset();
+    delete m_tileset;
+    m_tileset = m_tileset_view->load_tileset();
+
+    m_metatile_view->load_metatiles(m_tileset);
 }
 
 /**
@@ -94,16 +97,19 @@ void MainFrame::create_gui()
     // Position the window in the center of the main display
 	Center(wxBOTH);
 
-    // The TilesetView's size is 270x571 (see the comment in TilesetView::create_gui() for why that is).
+    // The TilesetView is 270x572 (see the comment in TilesetView::create_gui() for why that is).
+    // The MetatileView is also 270x572 and is positioned to the right of the TilesetView.
     // The window title adds 30px of height.
     // The menu bar adds 20px of height.
-    // The TilesetView is given a 5px border on the left, which is superficially added to the bottom and right sides.
+    // The TilesetView is given a 5px border on the left, which is superficially added to the bottom.
+    // The main sizer puts a 5px border between the TilesetView and MetatileView.
+    // The MetatileView is superficially given a 5px border on the right.
     // The entire window has a 1px border.
     // The defined window area is larger than the displayed window by 14px horizontally and 7px vertically.
-    // 270 + (5 + 5) + (1 + 1) + 14 = 296
-    // 571 + 30 + 20 + 5 + (1 + 1) + 7 = 635
-    SetMinSize( wxSize(296, 635) );
-    SetMaxSize( wxSize(296, 635) );
+    // 270 + 270 + (5 + 5 + 5) + (1 + 1) + 14 = 571
+    // 572 + 30 + 20 + 5 + (1 + 1) + 7 = 636
+    SetMinSize( wxSize(571, 636) );
+    SetMaxSize( wxSize(571, 636) );
 
     create_menu_bar();
 
@@ -126,6 +132,14 @@ void MainFrame::create_gui()
 
     // Add to sizer
     main_sizer->Add(m_tileset_view, 1, wxLEFT, 5);
+
+    // --- Metatile View --- //
+
+    // Custom widget for the tileset view panel
+    m_metatile_view = new MetatileView(main_panel);
+
+    // Add to sizer
+    main_sizer->Add(m_metatile_view, 1);
 }
 
 /**
