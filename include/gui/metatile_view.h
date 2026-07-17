@@ -29,10 +29,10 @@ private:
 
     wxStaticBoxSizer* m_metatile_view_sizer { nullptr };
 
-    wxPanel* m_bitmap_panel { nullptr };
+    wxScrolledWindow* m_bitmap_scroll { nullptr };
     wxStaticBitmap* m_metatile_bitmap { nullptr };
 
-    wxImage create_metatile_layer(std::vector<data::Tile> tiles);
+    wxImage create_metatile(const data::Metatile& metatile_data, const wxImage& tileset_image, const data::Tileset* tileset_data);
 
     // GUI creation methods
     void create_gui();

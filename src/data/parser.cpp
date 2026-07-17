@@ -152,16 +152,24 @@ Metatile Parser::parse_metatile(char data[])
     std::vector<Tile> tiles;
     for (int i = 0; i < 16; i += 2) // Read in 2-byte increments
     {
+        int attributes { (int)data[i + 1] };
+
         tiles.push_back(
             Tile {
-                (unsigned char)data[i],
-                (unsigned char)data[i + 1]
+                (uint8_t)data[i],
+                (uint8_t)( attributes >> 4 ), // First nibble is the palette index
+
+                // Last 4 bits are different flags
+                (bool)( attributes & 0b00001000 ), // Secondary tileset check
+                (bool)( attributes & 0b00000100 ), // Horizontal flip
+                (bool)( attributes & 0b00000010 ), // Vertical flip
+                (bool)( attributes & 0b00000001 )  // Bank swap (each tileset can have 2 banks of 256 tiles)
             }
         );
     }
 
     return Metatile {
-        std::vector<Tile>(tiles.begin(), tiles.begin() + 3),
+        std::vector<Tile>(tiles.begin(), tiles.begin() + 4),
         std::vector<Tile>(tiles.begin() + 4, tiles.end()),
         0x0000
     };

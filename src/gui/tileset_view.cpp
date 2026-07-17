@@ -165,11 +165,11 @@ void TilesetView::create_gui()
     // The StaticBox defined below adds a 5px margin on each side,
     // except for the top which adds 17px due to the title label.
     // The sunken border of the bitmap panel adds a 2px margin on each side.
-    // The options panel adds an additional 34px to the height.
+    // The options panel adds an additional 32px to the height.
     // 256 + (5 + 5) + (2 + 2) = 270
-    // 512 + (17 + 5) + (2 + 2) + 34 = 572
-    SetMinSize( wxSize(270, 572) );
-    SetMaxSize( wxSize(270, 572) );
+    // 512 + (17 + 5) + (2 + 2) + 32 = 570
+    SetMinSize( wxSize(270, 570) );
+    SetMaxSize( wxSize(270, 570) );
 
     m_tileset_view_sizer = new wxStaticBoxSizer(
         new wxStaticBox(this, wxID_ANY, "Tileset"),
@@ -205,7 +205,7 @@ void TilesetView::create_gui()
             wxID_ANY
         )
     };
-    tileset_options_panel->SetMinSize( wxSize(-1, 34) );
+    tileset_options_panel->SetMinSize( wxSize(-1, 32) );
 
     // Add to sizer
     m_tileset_view_sizer->Add(tileset_options_panel, 0, wxEXPAND);
