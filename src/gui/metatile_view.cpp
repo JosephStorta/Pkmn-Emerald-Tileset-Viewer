@@ -3,7 +3,7 @@
 #include <format>
 #include <vector>
 
-#include <logger/logger.h>
+#include <spdlog/spdlog.h>
 
 #include <wx/wxprec.h>
 
@@ -15,8 +15,6 @@
 
 namespace viewer {
 namespace gui {
-
-SET_LOG_MODULE("GUI");
 
 MetatileView::MetatileView(wxWindow* parent)
     : wxPanel(parent)
@@ -34,7 +32,7 @@ void MetatileView::load_metatiles(const data::Tileset* tileset)
     wxImage tileset_image(tileset->image.width, tileset->image.height, tileset->image.data, true);
     m_metatile_image = wxImage(128, ((int)(tileset->metatiles.size() / 8) + 1) * 16, true);
 
-    LOG_DEBUG(std::format("Metatile count: {}", tileset->metatiles.size()));
+    spdlog::debug("Metatile count: {}", tileset->metatiles.size());
     for (int i = 0; i < tileset->metatiles.size(); i++)
     {
         m_metatile_image.Paste(
@@ -179,7 +177,6 @@ void MetatileView::create_gui()
     );
     m_bitmap_scroll->SetBackgroundColour(*wxBLACK);
 
-    // Sunken border adds a 2px margin.
     m_bitmap_scroll->SetMinSize( wxSize(260, 560) );
     m_bitmap_scroll->SetMaxSize( wxSize(260, 560) );
 

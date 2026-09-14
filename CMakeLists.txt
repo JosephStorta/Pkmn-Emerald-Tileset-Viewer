@@ -19,14 +19,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../bin")
 
 # --- Load third-party libraries --- #
 
-# Logger
-add_library(Logger STATIC
-    ${CMAKE_SOURCE_DIR}/vendor/logger/logger.cpp
-)
+# spdlog
+find_package(spdlog REQUIRED)
 
-target_include_directories(Logger PUBLIC ${CMAKE_SOURCE_DIR}/vendor)
-
-# STB
+# Stb
 add_library(Stb STATIC
     ${CMAKE_SOURCE_DIR}/vendor/stb/stb_image.cpp
 )

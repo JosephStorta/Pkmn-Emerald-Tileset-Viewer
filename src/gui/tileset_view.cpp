@@ -4,7 +4,7 @@
 #include <format>
 #include <vector>
 
-#include <logger/logger.h>
+#include <spdlog/spdlog.h>
 
 #include <wx/wxprec.h>
 
@@ -20,8 +20,6 @@
 
 namespace viewer {
 namespace gui {
-
-SET_LOG_MODULE("GUI");
 
 TilesetView::TilesetView(wxWindow* parent)
     : wxPanel(parent)
@@ -43,19 +41,19 @@ TilesetView::TilesetView(wxWindow* parent)
  */
 data::Tileset* TilesetView::load_tileset()
 {
-    LOG_DEBUG("Showing file dialog...");
+    spdlog::debug("Showing file dialog...");
 
     // wxDirDialog selects a directory rather than a file
     wxDirDialog dialog(
         this,
         "Select tileset folder",
-        std::filesystem::canonical("./res").string(),
+        "",
         wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST
     );
     dialog.CenterOnParent();
 
     if (dialog.ShowModal() != wxID_OK)
-    {   LOG_DEBUG("File select cancelled");
+    {   spdlog::debug("File select cancelled");
         return nullptr;
     }
 
@@ -63,7 +61,7 @@ data::Tileset* TilesetView::load_tileset()
     std::filesystem::path tileset_path { dialog.GetPath().ToStdString() };
     m_tileset = data::Parser::parse_tileset(tileset_path);
 
-    LOG_DEBUG("Tileset loading complete");
+    spdlog::debug("Tileset loading complete");
 
     // Retrieve the parsed tileset image
     m_tileset_image = wxImage(m_tileset->image.width, m_tileset->image.height, m_tileset->image.data, true);
@@ -94,7 +92,7 @@ data::Tileset* TilesetView::load_tileset()
  */
 void TilesetView::on_palette_check(wxCommandEvent& event)
 {
-    LOG_INFO("Palette application toggled");
+    spdlog::info("Palette application toggled");
 
     update_spinbox();
     update_palette();
@@ -106,7 +104,7 @@ void TilesetView::on_palette_check(wxCommandEvent& event)
  */
 void TilesetView::on_palette_spin(wxSpinEvent& event)
 {
-    LOG_INFO("Palette number changed");
+    spdlog::info("Palette number changed");
 
     update_palette();
 }
@@ -161,13 +159,6 @@ void TilesetView::create_gui()
 {
     // --- Top-level --- //
 
-    // The max tileset size is 128x256. The display doubles that to 256x512.
-    // The StaticBox defined below adds a 5px margin on each side,
-    // except for the top which adds 17px due to the title label.
-    // The sunken border of the bitmap panel adds a 2px margin on each side.
-    // The options panel adds an additional 32px to the height.
-    // 256 + (5 + 5) + (2 + 2) = 270
-    // 512 + (17 + 5) + (2 + 2) + 32 = 570
     SetMinSize( wxSize(270, 570) );
     SetMaxSize( wxSize(270, 570) );
 
@@ -189,7 +180,6 @@ void TilesetView::create_gui()
     );
     m_bitmap_panel->SetBackgroundColour(*wxBLACK);
 
-    // Sunken border adds a 2px margin.
     m_bitmap_panel->SetMinSize( wxSize(260, 516) );
     m_bitmap_panel->SetMaxSize( wxSize(260, 516) );
 
