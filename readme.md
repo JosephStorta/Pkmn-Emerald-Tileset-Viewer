@@ -9,7 +9,7 @@ This project parses the tileset format found in [this decompilation of Pokemon E
 - A C++ compiler (I used [MSYS2](https://www.msys2.org/), I don't know if it'll compile with Clang or Visual Studio)
 
 ## Installation
-> [!IMPORTNANT]
+> [!IMPORTANT]
 > This project has only been tested for Windows 10. Functionality on other operating systems is unknown.
 
 Follow these steps to install and build the application:
@@ -19,7 +19,7 @@ Follow these steps to install and build the application:
     - Going to "Code > Download ZIP" on this repository's web page then extracting the zipped contents.
 
 2. Create a directory for the build files, then from that directory run `cmake [root directory]`, replacing "[root directory]" with the relative path to the project's root directory.
-    > [!TIP]
+    > [!NOTE]
     > To specify a makefile configuration, use the `-G` command option followed by your desired congifuration.
     > (e.g. `cmake [root directory] -G "MinGW Makefiles"` for MinGW)
 
