@@ -6,6 +6,6 @@ add_library(Data STATIC
 target_include_directories(Data PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
 target_link_libraries(Data PUBLIC
-    Logger
-    STB
+    spdlog::spdlog
+    Stb
 )

@@ -9,10 +9,19 @@ namespace viewer {
 namespace data {
 
 /**
+ * @brief Base grayscale values used by tileset images.
+ */
+const std::vector<uint8_t> grayscale_palette {
+    255, 238, 222, 205, 189, 172, 156, 139, 115, 98, 82, 65, 49, 32, 16, 0
+};
+
+/**
  * @brief Basic image data struct.
  */
 struct ImageData
 {
+    ~ImageData();
+
     int width;
     int height;
     int channels;
@@ -26,7 +35,12 @@ struct ImageData
 struct Tile
 {
     uint8_t index;
-    uint8_t flags; // I'll decode what each flag means later
+    uint8_t palette_index;
+
+    bool is_secondary { false };
+    bool h_flip { false };
+    bool v_flip { false };
+    bool bank { false };
 };
 
 /**

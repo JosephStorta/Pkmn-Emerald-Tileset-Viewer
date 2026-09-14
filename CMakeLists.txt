@@ -19,22 +19,22 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../bin")
 
 # --- Load third-party libraries --- #
 
-# Logger
-add_library(Logger STATIC
-    ${CMAKE_SOURCE_DIR}/vendor/logger/logger.cpp
-)
+# spdlog
+find_package(spdlog REQUIRED)
 
-target_include_directories(Logger PUBLIC ${CMAKE_SOURCE_DIR}/vendor)
-
-# STB
-add_library(STB STATIC
+# Stb
+add_library(Stb STATIC
     ${CMAKE_SOURCE_DIR}/vendor/stb/stb_image.cpp
 )
 
-target_include_directories(STB PUBLIC ${CMAKE_SOURCE_DIR}/vendor)
+target_include_directories(Stb PUBLIC ${CMAKE_SOURCE_DIR}/vendor)
+
+# WxWidgets
+find_package(wxWidgets REQUIRED CONFIG COMPONENTS net core base)
 
 # Load subdirectories
 add_subdirectory(src/data)
+add_subdirectory(src/gui)
 
 # Add the executable
 add_executable(Main
@@ -45,8 +45,8 @@ add_executable(Main
 target_include_directories(Main PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
 target_link_libraries(Main PRIVATE
-    Data
+    Gui
 
     # Vendor libraries
-    Logger
+    ${wxWidgets_LIBRARIES}
 )

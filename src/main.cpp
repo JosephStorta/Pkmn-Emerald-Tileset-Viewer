@@ -1,17 +1,9 @@
-#include <logger/logger.h>
+#include <wx/wxprec.h>
 
-#include "data/parser.h"
+#ifndef WX_PRECOMP
+    #include <wx/wx.h>
+#endif
 
-SET_LOG_MODULE("MAIN");
+#include "gui/app.h"
 
-// Test value for loading tilesets
-const std::string tileset_name { "general" };
-
-int main()
-{
-    LOG_INFO("Running test parse...");
-    viewer::data::Parser::parse_tileset(tileset_name);
-    LOG_INFO("Test parse complete");
-
-    return 0;
-}
+wxIMPLEMENT_APP(viewer::gui::App);

@@ -1,0 +1,160 @@
+#include "gui/app.h"
+
+#include <spdlog/spdlog.h>
+
+#include <wx/wxprec.h>
+
+#ifndef WX_PRECOMP
+    #include <wx/wx.h>
+#endif
+
+#include "gui/tileset_view.h"
+
+namespace viewer {
+namespace gui {
+
+/**
+ * @brief Helper enum to store menu item IDs.
+ */
+enum MenuItem
+{
+    Open = 1
+};
+
+/**
+ * @brief Responsible for initializing the application.
+ * @return True on successful initialization, false if otherwise.
+ */
+bool App::OnInit()
+{
+    spdlog::info("Initializing GUI...");
+
+    MainFrame* frame { new MainFrame() };
+    frame->Show();
+    return true;
+}
+
+MainFrame::MainFrame()
+    : wxFrame(NULL, wxID_ANY, "Pokemon Emerald Tileset Viewer")
+{
+    spdlog::debug("Creating main frame...");
+
+    create_gui();
+
+    // Bind events
+    Bind(wxEVT_MENU, &MainFrame::on_open, this, MenuItem::Open);
+    Bind(wxEVT_MENU, &MainFrame::on_exit, this, wxID_EXIT);
+    Bind(wxEVT_MENU, &MainFrame::on_about, this, wxID_ABOUT);
+}
+
+/**
+ * @brief Functionality for the "File > Hello" menu item.
+ * @param event 
+ */
+void MainFrame::on_open(wxCommandEvent& event)
+{
+    spdlog::info("Open menu selected");
+
+    delete m_tileset;
+    m_tileset = m_tileset_view->load_tileset();
+
+    m_metatile_view->load_metatiles(m_tileset);
+}
+
+/**
+ * @brief Functionality for the "File > Exit" menu item.
+ * @param event 
+ */
+void MainFrame::on_exit(wxCommandEvent& event)
+{
+    Close(true);
+}
+
+/**
+ * @brief Functionality for the "Help > About" menu item.
+ * @param event 
+ */
+void MainFrame::on_about(wxCommandEvent& event)
+{
+    wxMessageBox(
+        "This is a basic parser/viewer for the tileset data from Pokemon Emerald.",
+        "About",
+        wxOK | wxICON_INFORMATION
+    );
+}
+
+/**
+ * @brief Creates and arranges GUI widgets.
+ */
+void MainFrame::create_gui()
+{
+    // GUI coding go brrrr
+
+    // --- Top-Level --- //
+
+    // Position the window in the center of the main display
+	Center(wxBOTH);
+
+    // Magic numbers here cause I don't quite know
+    // how to get the widget scaling to cooperate.
+    SetMinSize( wxSize(571, 634) );
+
+    create_menu_bar();
+
+    // Top-level panel
+    wxPanel* main_panel {
+        new wxPanel(
+            this,
+            wxID_ANY
+        )
+    };
+
+    // Top-level sizer
+    wxFlexGridSizer* main_sizer { new wxFlexGridSizer(2, 2, 5, 5) };
+    main_panel->SetSizer(main_sizer);
+
+    // --- Tileset View --- //
+
+    // Custom widget for the tileset view panel
+    m_tileset_view = new TilesetView(main_panel);
+
+    // Add to sizer
+    main_sizer->Add(m_tileset_view, 1, wxLEFT, 5);
+
+    // --- Metatile View --- //
+
+    // Custom widget for the tileset view panel
+    m_metatile_view = new MetatileView(main_panel);
+
+    // Add to sizer
+    main_sizer->Add(m_metatile_view, 1);
+}
+
+/**
+ * @brief Creates and populates the menu bar.
+ */
+void MainFrame::create_menu_bar()
+{
+    spdlog::debug("Creating menu bar...");
+    
+    wxMenu *file_menu = new wxMenu;
+    file_menu->Append(
+        MenuItem::Open,
+        "&Open...\tCtrl+O",
+        "Open a tileset folder"
+    );
+    file_menu->AppendSeparator();
+    file_menu->Append(wxID_EXIT);
+
+    wxMenu *help_menu = new wxMenu;
+    help_menu->Append(wxID_ABOUT);
+
+    wxMenuBar *menu_bar = new wxMenuBar;
+    menu_bar->Append(file_menu, "&File");
+    menu_bar->Append(help_menu, "&Help");
+
+    SetMenuBar(menu_bar);
+}
+
+} // namespace gui
+} // namespace viewer

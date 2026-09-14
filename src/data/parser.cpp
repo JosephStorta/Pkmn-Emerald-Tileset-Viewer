@@ -5,9 +5,10 @@
 #include <format>
 #include <fstream>
 #include <ios>
+#include <memory>
 #include <string>
 
-#include <logger/logger.h>
+#include <spdlog/spdlog.h>
 
 #include <stb/stb_image.h>
 
@@ -16,33 +17,27 @@
 namespace viewer {
 namespace data {
 
-SET_LOG_MODULE("DATA");
-
-// Root directory for tileset data (value subject to change)
-const std::filesystem::path tileset_root_path { "./res/primary" };
-
 /**
  * @brief Parses tileset data into a Tileset object.
  * @param name The name of the tileset.
  * @return The parsed tileset data.
  */
-Tileset Parser::parse_tileset(const std::string& name)
+Tileset* Parser::parse_tileset(const std::filesystem::path& tileset_path)
 {
-    std::filesystem::path tileset_path { tileset_root_path / name };
-
-    LOG_INFO( std::format("Parsing tileset: {}", tileset_path.string()) );
+    spdlog::debug("Parsing tileset: {}", tileset_path.string());
 
     if (!std::filesystem::exists(tileset_path))
     {
-        LOG_ERROR("Tileset does not exist");
-        return Tileset{};
+        spdlog::error("Tileset does not exist");
+        return nullptr;
     }
 
-    return Tileset {
-        parse_image(tileset_path),
-        parse_metatiles(tileset_path),
-        parse_palettes(tileset_path)
-    };
+    std::unique_ptr<Tileset> tileset { std::make_unique<Tileset>() };
+    tileset->image = *parse_image(tileset_path);
+    tileset->metatiles = parse_metatiles(tileset_path);
+    tileset->palettes = parse_palettes(tileset_path);
+
+    return tileset.release();
 }
 
 /**
@@ -50,28 +45,28 @@ Tileset Parser::parse_tileset(const std::string& name)
  * @param tileset_path The folder containing the tileset data.
  * @return The parsed image data.
  */
-ImageData Parser::parse_image(const std::filesystem::path& tileset_path)
+ImageData* Parser::parse_image(const std::filesystem::path& tileset_path)
 {
     std::filesystem::path image_path { tileset_path / "tiles.png" };
 
-    LOG_DEBUG( std::format("Parsing image file: {}", image_path.string()) );
+    spdlog::debug("Parsing image file: {}", image_path.string());
 
     if (!std::filesystem::exists(image_path))
     {
-        LOG_ERROR("Tileset image does not exist");
+        spdlog::error("Tileset image does not exist");
         return {};
     }
 
-    ImageData image_data {};
-    image_data.data = stbi_load(
+    std::unique_ptr<ImageData> image_data { std::make_unique<ImageData>() };
+    image_data->data = stbi_load(
         image_path.string().c_str(),
-        &image_data.width,
-        &image_data.height,
-        &image_data.channels,
-        4
+        &image_data->width,
+        &image_data->height,
+        &image_data->channels,
+        3
     );
 
-    return image_data;
+    return image_data.release();
 }
 
 /**
@@ -83,18 +78,18 @@ std::vector<Metatile> Parser::parse_metatiles(const std::filesystem::path& tiles
 {
     std::filesystem::path metatile_path { tileset_path / "metatiles.bin" };
 
-    LOG_DEBUG( std::format("Parsing metatile data: {}", metatile_path.string()) );
+    spdlog::debug("Parsing metatile data: {}", metatile_path.string());
 
     if (!std::filesystem::exists(metatile_path))
     {
-        LOG_ERROR("Metatile data does not exist:");
+        spdlog::error("Metatile data does not exist:");
         return {};
     }
 
     std::ifstream file(metatile_path, std::ios::binary);
     if (!file.is_open())
     {
-        LOG_ERROR("Failed to open file");
+        spdlog::error("Failed to open file");
         return {};
     }
 
@@ -114,18 +109,18 @@ std::vector<Metatile> Parser::parse_metatiles(const std::filesystem::path& tiles
 
     std::filesystem::path attribute_path { tileset_path / "metatile_attributes.bin" };
 
-    LOG_DEBUG( std::format("Parsing metatile attributes: {}", attribute_path.string()) );
+    spdlog::debug("Parsing metatile attributes: {}", attribute_path.string());
 
-    if (!std::filesystem::exists(metatile_path))
+    if (!std::filesystem::exists(attribute_path))
     {
-        LOG_ERROR("Metatile data does not exist:");
+        spdlog::error("Metatile attribute data does not exist:");
         return metatiles;
     }
 
     file.open(attribute_path, std::ios::binary);
     if (!file.is_open())
     {
-        LOG_ERROR("Failed to open file");
+        spdlog::error("Failed to open file");
         return metatiles;
     }
 
@@ -155,16 +150,24 @@ Metatile Parser::parse_metatile(char data[])
     std::vector<Tile> tiles;
     for (int i = 0; i < 16; i += 2) // Read in 2-byte increments
     {
+        int attributes { (int)data[i + 1] };
+
         tiles.push_back(
             Tile {
-                (unsigned char)data[i],
-                (unsigned char)data[i + 1]
+                (uint8_t)data[i],
+                (uint8_t)( attributes >> 4 ), // First nibble is the palette index
+
+                // Last 4 bits are different flags
+                (bool)( attributes & 0b00001000 ), // Secondary tileset check
+                (bool)( attributes & 0b00000100 ), // Horizontal flip
+                (bool)( attributes & 0b00000010 ), // Vertical flip
+                (bool)( attributes & 0b00000001 )  // Bank swap (each tileset can have 2 banks of 256 tiles)
             }
         );
     }
 
     return Metatile {
-        std::vector<Tile>(tiles.begin(), tiles.begin() + 3),
+        std::vector<Tile>(tiles.begin(), tiles.begin() + 4),
         std::vector<Tile>(tiles.begin() + 4, tiles.end()),
         0x0000
     };
@@ -179,11 +182,11 @@ std::vector<Palette> Parser::parse_palettes(const std::filesystem::path& tileset
 {
     std::filesystem::path palette_path { tileset_path / "palettes" };
 
-    LOG_DEBUG( std::format("Parsing palettes: {}", palette_path.string()) );
+    spdlog::debug("Parsing palettes: {}", palette_path.string());
 
     if (!std::filesystem::exists(palette_path))
     {
-        LOG_ERROR("Palettes do not exist");
+        spdlog::error("Palettes do not exist");
         return {};
     }
 
@@ -206,18 +209,18 @@ std::vector<Palette> Parser::parse_palettes(const std::filesystem::path& tileset
  */
 Palette Parser::parse_palette(const std::filesystem::path& palette_file)
 {
-    LOG_DEBUG( std::format("Parsing palette file: {}", palette_file.string()) );
+    spdlog::debug("Parsing palette file: {}", palette_file.string());
 
     if (!std::filesystem::exists(palette_file))
     {
-        LOG_ERROR("Palette does not exist:");
+        spdlog::error("Palette does not exist:");
         return {};
     }
 
     std::ifstream file(palette_file);
     if (!file.is_open())
     {
-        LOG_ERROR("Failed to open file");
+        spdlog::error("Failed to open file");
         return {};
     }
 
@@ -231,12 +234,21 @@ Palette Parser::parse_palette(const std::filesystem::path& palette_file)
 
     for (int i = 0; i < 16; i++)
     {
-        Color color {};
-        file >> color.red;
-        file >> color.green;
-        file >> color.blue;
+        int r;
+        int g;
+        int b;
 
-        colors.push_back(color);
+        file >> r;
+        file >> g;
+        file >> b;
+
+        colors.push_back(
+            Color {
+                static_cast<uint8_t>(r),
+                static_cast<uint8_t>(g),
+                static_cast<uint8_t>(b)
+            }
+        );
     }
 
     file.close();
