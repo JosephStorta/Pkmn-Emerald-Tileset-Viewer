@@ -22,10 +22,10 @@ class TilesetView : public wxPanel
 public:
     TilesetView(wxWindow* parent);
 
-    void load_tileset();
+    data::Tileset* load_tileset();
 
 private:
-    data::Tileset m_tileset;
+    data::Tileset* m_tileset { nullptr };
     wxImage m_tileset_image { wxNullImage };
 
     wxStaticBoxSizer* m_tileset_view_sizer { nullptr };

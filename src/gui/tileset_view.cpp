@@ -4,7 +4,7 @@
 #include <format>
 #include <vector>
 
-#include <logger/logger.h>
+#include <spdlog/spdlog.h>
 
 #include <wx/wxprec.h>
 
@@ -20,8 +20,6 @@
 
 namespace viewer {
 namespace gui {
-
-SET_LOG_MODULE("GUI");
 
 TilesetView::TilesetView(wxWindow* parent)
     : wxPanel(parent)
@@ -41,33 +39,33 @@ TilesetView::TilesetView(wxWindow* parent)
 /**
  * @brief Prompts the user for a tileset folder to load.
  */
-void TilesetView::load_tileset()
+data::Tileset* TilesetView::load_tileset()
 {
-    LOG_DEBUG("Showing file dialog...");
+    spdlog::debug("Showing file dialog...");
 
     // wxDirDialog selects a directory rather than a file
     wxDirDialog dialog(
         this,
         "Select tileset folder",
-        std::filesystem::canonical("./res").string(),
+        "",
         wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST
     );
     dialog.CenterOnParent();
 
     if (dialog.ShowModal() != wxID_OK)
-    {   LOG_DEBUG("File select cancelled");
-        return;
+    {   spdlog::debug("File select cancelled");
+        return nullptr;
     }
 
     // Parse the selected tileset
     std::filesystem::path tileset_path { dialog.GetPath().ToStdString() };
-    m_tileset = *data::Parser::parse_tileset(tileset_path);
+    m_tileset = data::Parser::parse_tileset(tileset_path);
 
-    LOG_DEBUG("Tileset loading complete");
+    spdlog::debug("Tileset loading complete");
 
     // Retrieve the parsed tileset image
-    m_tileset_image = wxImage(m_tileset.image.width, m_tileset.image.height, m_tileset.image.data, true);
-    m_tileset_image = m_tileset_image.Scale(m_tileset.image.width * 2, m_tileset.image.height * 2);
+    m_tileset_image = wxImage(m_tileset->image.width, m_tileset->image.height, m_tileset->image.data, true);
+    m_tileset_image = m_tileset_image.Scale(m_tileset->image.width * 2, m_tileset->image.height * 2);
 
     // wxWidgets gives an error if a wxStaticBitmap is defined without a valid image,
     // so we wait until a tileset is loaded to define it.
@@ -84,6 +82,8 @@ void TilesetView::load_tileset()
     m_tileset_view_sizer->GetStaticBox()->SetLabelText("Tileset: " + tileset_path.filename().string());
 
     update_palette();
+
+    return m_tileset;
 }
 
 /**
@@ -92,7 +92,7 @@ void TilesetView::load_tileset()
  */
 void TilesetView::on_palette_check(wxCommandEvent& event)
 {
-    LOG_INFO("Palette application toggled");
+    spdlog::info("Palette application toggled");
 
     update_spinbox();
     update_palette();
@@ -104,7 +104,7 @@ void TilesetView::on_palette_check(wxCommandEvent& event)
  */
 void TilesetView::on_palette_spin(wxSpinEvent& event)
 {
-    LOG_INFO("Palette number changed");
+    spdlog::info("Palette number changed");
 
     update_palette();
 }
@@ -135,7 +135,7 @@ void TilesetView::update_palette()
 
     // Define a new image to retain an instance of the original grayscale image.
     wxImage palette_image { m_tileset_image };
-    data::Palette palette { m_tileset.palettes[m_palette_spinbox->GetValue()] };
+    data::Palette palette { m_tileset->palettes[m_palette_spinbox->GetValue()] };
     
     for (int i = 0; i < palette.colors.size(); i++)
     {
@@ -159,15 +159,8 @@ void TilesetView::create_gui()
 {
     // --- Top-level --- //
 
-    // The max tileset size is 256x512.
-    // The StaticBox defined below adds a 5px margin on each side,
-    // except for the top which adds 17px due to the title label.
-    // The sunken border of the bitmap panel adds a 2px margin on each side.
-    // The options panel adds an additional 33px to the height.
-    // 256 + (5 + 5) + (2 + 2) = 270
-    // 512 + (17 + 5) + (2 + 2) + 33 = 571
-    SetMinSize( wxSize(270, 571) );
-    SetMaxSize( wxSize(270, 571) );
+    SetMinSize( wxSize(270, 570) );
+    SetMaxSize( wxSize(270, 570) );
 
     m_tileset_view_sizer = new wxStaticBoxSizer(
         new wxStaticBox(this, wxID_ANY, "Tileset"),
@@ -187,7 +180,6 @@ void TilesetView::create_gui()
     );
     m_bitmap_panel->SetBackgroundColour(*wxBLACK);
 
-    // Sunken border adds a 2px margin.
     m_bitmap_panel->SetMinSize( wxSize(260, 516) );
     m_bitmap_panel->SetMaxSize( wxSize(260, 516) );
 
@@ -203,6 +195,7 @@ void TilesetView::create_gui()
             wxID_ANY
         )
     };
+    tileset_options_panel->SetMinSize( wxSize(-1, 32) );
 
     // Add to sizer
     m_tileset_view_sizer->Add(tileset_options_panel, 0, wxEXPAND);

@@ -35,7 +35,12 @@ struct ImageData
 struct Tile
 {
     uint8_t index;
-    uint8_t flags; // I'll decode what each flag means later
+    uint8_t palette_index;
+
+    bool is_secondary { false };
+    bool h_flip { false };
+    bool v_flip { false };
+    bool bank { false };
 };
 
 /**
