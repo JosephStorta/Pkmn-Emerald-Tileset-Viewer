@@ -18,10 +18,9 @@ Follow these steps to install and build the application:
     - Running `git clone https://github.com/JosephStorta/Pkmn-Emerald-Tileset-Viewer.git` from the terminal (if you have git bash installed).
     - Going to "Code > Download ZIP" on this repository's web page then extracting the zipped contents.
 
-2. Create a directory for the build files, then from that directory run `cmake [root directory]`, replacing "[root directory]" with the relative path to the project's root directory.
-    > [!NOTE]
-    > To specify a makefile configuration, use the `-G` command option followed by your desired congifuration.
-    > (e.g. `cmake [root directory] -G "MinGW Makefiles"` for MinGW)
+2. Create a directory for the build files, then from that directory run `cmake [root directory]`, replacing "[root directory]" with the relative path to the project's root directory.  
+To specify a makefile configuration, use the `-G` command option followed by your desired congifuration.
+(e.g. `cmake [root directory] -G "MinGW Makefiles"` for MinGW)
 
 3. Run `make` from your build directory.
 
